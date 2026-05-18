@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eagle County Fair — Open Class Entry Form</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; background: #f7f6f2; color: #222; min-height: 100vh; }
+
+    .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+
+    .header { border-bottom: 2.5px solid #3B6D11; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; align-items: flex-end; gap: 1rem; }
+    .header-title h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
+    .header-title p { font-size: 13px; color: #666; }
+    .badge { background: #EAF3DE; color: #3B6D11; font-size: 12px; padding: 5px 12px; border-radius: 6px; font-weight: 600; white-space: nowrap; font-family: Arial, sans-serif; }
+
+    .card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #888; margin-bottom: 12px; font-family: Arial, sans-serif; }
+
+    .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 12px; color: #666; font-family: Arial, sans-serif; }
+    .field input, .field select {
+      width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+      font-size: 14px; font-family: Arial, sans-serif; color: #222; background: #fff;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: #639922; box-shadow: 0 0 0 2px rgba(99,153,34,0.15); }
+    .field-full { grid-column: 1 / -1; }
+
+    .age-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .age-btn {
+      padding: 7px 14px; border-radius: 6px; border: 1px solid #ccc;
+      background: #fff; color: #555; font-size: 13px; cursor: pointer;
+      font-family: Arial, sans-serif; transition: all 0.15s;
+    }
+    .age-btn:hover { border-color: #639922; color: #3B6D11; }
+    .age-btn.active { background: #EAF3DE; border-color: #639922; color: #3B6D11; font-weight: 600; }
+
+    .entries-header {
+      display: grid; grid-template-columns: 36px 220px 1fr 48px;
+      gap: 8px; padding: 0 0 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;
+    }
+    .entries-header span { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.05em; font-family: Arial, sans-serif; }
+
+    .entry-row {
+      display: grid; grid-template-columns: 36px 220px 1fr 48px;
+      gap: 8px; align-items: start; padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .entry-num { font-size: 13px; color: #999; padding-top: 9px; font-weight: 600; text-align: center; font-family: Arial, sans-serif; }
+    .entry-row select, .entry-row input { font-size: 13px; font-family: Arial, sans-serif; }
+    .entry-class-wrap { display: flex; flex-direction: column; gap: 5px; }
+    .desc-input { padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 12px; color: #444; background: #fafafa; width: 100%; }
+    .desc-input:focus { outline: none; border-color: #639922; }
+
+    .remove-btn {
+      background: none; border: none; cursor: pointer; color: #bbb;
+      padding: 8px 6px; font-size: 20px; line-height: 1; border-radius: 4px;
+    }
+    .remove-btn:hover { color: #c0392b; background: #fdf0f0; }
+
+    .add-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 16px; margin-top: 12px; border-radius: 6px;
+      background: none; border: 1.5px dashed #ccc; color: #888;
+      font-size: 13px; cursor: pointer; width: 100%; font-family: Arial, sans-serif;
+      transition: all 0.15s;
+    }
+    .add-btn:hover { background: #f5f5f0; border-color: #999; color: #555; }
+
+    .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: #3B6D11; color: #fff; border: none; padding: 11px 28px;
+      border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: Arial, sans-serif; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: #639922; }
+    .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-outline {
+      background: none; border: 1px solid #3B6D11; color: #3B6D11; padding: 11px 24px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif;
+      font-weight: 600;
+    }
+    .btn-outline:hover { background: #EAF3DE; }
+    .btn-secondary {
+      background: none; border: 1px solid #ccc; color: #444; padding: 11px 24px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif;
+    }
+    .btn-secondary:hover { background: #f5f5f0; }
+
+    .entry-count { font-size: 13px; color: #999; font-family: Arial, sans-serif; }
+
+    /* Toast notification */
+    #toast {
+      display: none; position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 8px;
+      font-family: Arial, sans-serif; font-size: 14px; z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #toast.success { background: #3B6D11; }
+    #toast.error { background: #c0392b; }
+
+    /* Config banner */
+    #configBanner {
+      background: #FAEEDA; border: 1px solid #BA7517; border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 1.25rem; font-family: Arial, sans-serif;
+      font-size: 13px; color: #633806; display: flex; align-items: flex-start; gap: 10px;
+    }
+    #configBanner.hidden { display: none; }
+    #configBanner strong { display: block; margin-bottom: 3px; }
+
+    /* Required field indicator */
+    .required::after { content: " *"; color: #c0392b; }
+
+    @media (max-width: 600px) {
+      .entries-header { display: none; }
+      .entry-row { grid-template-columns: 28px 1fr 40px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .actions, .add-btn, .remove-btn, .age-btn, #configBanner, #toast { display: none !important; }
+      .card { border: 1px solid #ccc; box-shadow: none; }
+      .page { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div id="configBanner">
+    <span style="font-size:20px;">⚙️</span>
+    <div>
+      <strong>Setup required: paste your Google Apps Script Web App URL</strong>
+      Open this HTML file in a text editor, find the line that says <code>var SCRIPT_URL = "";</code> near the top of the &lt;script&gt; section, and paste your Web App URL between the quotes. Save the file and re-open it in a browser.
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-title">
+      <h1>Eagle County Fair &mdash; Open Class Entry Form</h1>
+      <p>Complete all sections, add your entry items, then click Submit. Fields marked * are required.</p>
+    </div>
+    <span class="badge">Open Class</span>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Exhibitor information</p>
+    <div class="field-grid">
+      <div class="field">
+        <label for="lastName" class="required">Last name</label>
+        <input type="text" id="lastName" placeholder="Last name" />
+      </div>
+      <div class="field">
+        <label for="firstName" class="required">First name</label>
+        <input type="text" id="firstName" placeholder="First name" />
+      </div>
+      <div class="field field-full">
+        <label class="required">Age group</label>
+        <div class="age-group" id="ageGroup">
+          <button class="age-btn" type="button" onclick="setAge(this,'Youth 2–7 years')">Youth 2–7 years</button>
+          <button class="age-btn" type="button" onclick="setAge(this,'Youth 8–10 years')">Youth 8–10 years</button>
+          <button class="age-btn" type="button" onclick="setAge(this,'Youth 11–13 years')">Youth 11–13 years</button>
+          <button class="age-btn" type="button" onclick="setAge(this,'Youth 14–17 years')">Youth 14–17 years</button>
+          <button class="age-btn" type="button" onclick="setAge(this,'Adult 18 years or older')">Adult 18 years or older</button>
+          <button class="age-btn" type="button" onclick="setAge(this,'Professional: makes $500+ per year on skill or craft')">Professional</button>
+        </div>
+      </div>
+      <div class="field field-full">
+        <label for="address" class="required">Mailing address</label>
+        <input type="text" id="address" placeholder="Street address, city, state, ZIP" />
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" placeholder="(970) 555-0100" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="greenAcre">Green Acre member?</label>
+        <select id="greenAcre">
+          <option value="">— select —</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="exhibitorNum">Exhibitor #</label>
+        <input type="text" id="exhibitorNum" placeholder="Assigned at check-in" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Entry items <span id="entryCount" class="entry-count"></span></p>
+    <div class="entries-header">
+      <span>#</span>
+      <span>Division</span>
+      <span>Class / Lot &amp; description</span>
+      <span></span>
+    </div>
+    <div id="entryList"></div>
+    <button class="add-btn" type="button" onclick="addEntry()">+ Add another entry</button>
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" type="button" onclick="clearForm()">Clear form</button>
+    <button class="btn-outline" type="button" onclick="generateDoc()">&#x1F5A8; Preview &amp; print</button>
+    <button class="btn-primary" type="button" id="submitBtn" onclick="submitForm()">&#10003; Submit to spreadsheet</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW
+// ============================================================
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMq7Rlyhj6iW-SKFS8CDUiBgc6IKAH1MptpGPYVQKsaku9F48DcWigKypSwmbjxrZAyA/exec";
+// ============================================================
+
+// Show config banner if URL not set
+if (!SCRIPT_URL) {
+  document.getElementById('configBanner').classList.remove('hidden');
+} else {
+  document.getElementById('configBanner').classList.add('hidden');
+}
+
+const DIVISIONS = {
+  "100 Flowers": ["101 Aster (3)","102 Bachelor Button (3)","103 Columbine (3)","104 Coneflower (3)","105 Chrysanthemum (3)","106 Cosmos (3)","107 Dahlia \u2013 over 8\" (1)","108 Dahlia \u2013 under 8\" (2)","109 Daisy Shasta (3)","110 Delphinium (2)","111 Gladioli (1)","112 Gaillardia, blanket flower (3)","113 Lily (2)","114 Marigold (3)","115 Marigold miniature (5) 3/4\"-1.75\"","116 Nasturtiums (3)","117 Pansies (3)","118 Petunia \u2013 single (3)","119 Petunia \u2013 double (3)","120 Phlox (3)","121 Rose (1 stem)","122 Rose miniature (1 cluster)","123 Sweet pea (3)","124 Snapdragon (2)","125 Sunflower (2)","126 Zinnia (3)","127 Flower, any other (3)"],
+  "150 Flower Arrangements": ["151 Dried arrangement","152 Fresh arrangement"],
+  "200 Potted Plants": ["201 Flowering","202 Foliage","203 Fairy Garden","204 Hanging basket \u2013 flowering","205 Hanging basket \u2013 foliage","206 Cacti and/or succulent","207 Terrarium","208 Themes","209 Unusual container","210 Potted plants, any other"],
+  "300 Vegetables & Crops": ["301 Green beans (8)","302 Yellow beans (8)","303 Bean any other variety (8)","304 Beets (3) (2'' of top and root attached)","305 Broccoli (1 head)","306 Cabbage (1 head)","307 Carrots (4) (2\" top and root attached)","308 Cauliflower (1 head)","309 Cucumbers, pickles (3)","310 Cucumbers, slicers (3)","311 Cucumbers, any other variety (3)","312 Fruits, raspberries (12)","313 Fruits, strawberries (6)","314 Fruits, any other variety (12)","315 Garlic (1 bulb) (2\" tops)","316 Kale, head (1)","317 Kohlrabi (4)","318 Lettuce, head (iceberg or bibb) (1 head)","319 Lettuce, red leaf (6 leaves)","320 Lettuce, green leaf (6 leaves)","321 Lettuce, romaine (1 head)","322 Onions, white (3) (\u00bd\" tops)","323 Onions, yellow (3) (\u00bd\" tops)","324 Onions, red (3) (\u00bd\" tops)","325 Onions, green (3) (3\" tops with roots)","326 Peas, pod (8)","327 Peas, sugar snap (8)","328 Peppers, Anaheim (3)","329 Peppers, bell (3)","330 Peppers, jalapeno (3)","331 Potatoes, red (4), unwashed","332 Potatoes, russet (4), unwashed","333 Potatoes, Yukon Gold (4), unwashed","334 Potatoes, any other variety (4), unwashed","335 Radishes, all varieties (1 bunch of 4 tied with 3\" tops)","336 Rhubarb (3 stems)","337 Squash, summer, any variety (3)","338 Squash, zucchini (3)","339 Squash, any other variety (3)","340 Spinach (6 leaves)","341 Swiss chard (6 leaves)","342 Tomatoes, red (4) (no stems)","343 Tomatoes, green (4) (with stems)","344 Tomatoes, cherry (6) (no stems)","345 Tomatoes, any other variety (4)","346 Turnips (4) (1\" tops)","347 Vegetables, any other variety (4)"],
+  "350 Herbs": ["351 Basil","352 Chives","353 Dill","354 Lavender","355 Mint","356 Parsley","357 Oregano","358 Rosemary","359 Thyme","360 Herb, any other variety"],
+  "400 Canned Fruits": ["401 Apples","402 Applesauce","403 Apricots","404 Sweet cherries","405 Pie cherries","406 Fruit juices","407 Grapes","408 Peaches","409 Pears","410 Plums","411 Pineapple","412 Spiced fruits","413 Canned fruit, any other variety"],
+  "500 Canned Vegetables": ["501 Beans, green","502 Beans, yellow","503 Beets","504 Carrots","505 Corn","506 Tomatoes","507 Vegetable juices","508 Vegetables, any other variety"],
+  "550 Canned Poultry, Red Meats & Seafood": ["551 Chicken or rabbit","552 Ground or chopped meat","553 Strips, cubes, chunks of meat","554 Meat stock (broth)","555 Chili con carne","556 Fish or seafood"],
+  "600 General Canned Foods": ["601 Honey","602 Other general canned foods"],
+  "650 Home Brewed Wine & Beers": ["651 Homemade wine","652 Homebrewed beer","653 Homemade liqueur & brandies","654 Kombucha","655 Other"],
+  "700 Jellies/Jams/Preserves": ["701 Butter, apple","702 Butter, domestic berry","703 Butter, wild berry","704 Butter, any other variety","705 Conserves, any other variety","706 Jam, apricot","707 Jam, peach","708 Jam, raspberry","709 Jam, strawberry","710 Jam, combination of fruits","711 Jam, any other variety","712 Jelly, apple","713 Jelly, grape","714 Jelly, strawberry","715 Jelly, combination of fruits","716 Jelly, any other domestic berry","717 Jelly, Wildberry, any variety","718 Jelly, combination of berries","719 Jelly, any other variety","720 Preserves, any variety","721 Marmalades, any variety","722 Syrups, any variety","723 Other jellies/jams/preserves"],
+  "800 Pickles & Spiced Products": ["801 Asparagus","802 Barbeque sauce","803 Bread and butter","804 Catsup, mild","805 Catsup, hot","806 Chile sauce","807 Cinnamon pickles","808 Cucumber dill pickles","809 Cucumber pickles, kosher dill","810 Cucumber pickles, dill hot","811 Cucumber pickles, sweet","812 Cucumber pickles, lime","813 Jalapeno pickles","814 Melon pickles","815 Mixed pickles","816 Mustard pickles","817 Mushroom pickles","818 Pickled beans","819 Pickled beets","820 Pickled carrots","821 Pickled okra","822 Relish, sweet","823 Relish, hot","824 Relish, dill","825 Relish, zucchini","826 Relish, any other variety","827 Salsa","828 Spiced fruit","829 Spaghetti sauce (Must be pressure canned)","830 Zucchini, pickles, dill","831 Zucchini, pickles, garlic","832 Zucchini, pickles, sweet","833 Flavored vinegars","834 Spiced products"],
+  "900 Dried Foods": ["901 Fruit (6 pieces or 1/2 cup)","902 Fruit leather (1 - 6\" roll or 3 - 2\" rolls)","903 Vegetables (1/2 cup)","904 Noodles (6 to 8 pieces)","905 Trail mix (1/2 cup)","906 Granola (1/2 cup)","907 Jerky, 6 pieces (must meet CSU requirements)","908 Any other dried food"],
+  "1000 Yeast Breads": ["1001 Loaf of white bread","1002 Loaf of 100% whole wheat (recipe required)","1003 Loaf of Sourdough","1004 Loaf of French","1005 Loaf of bread machine bread","1006 Loaf of any other variety","1007 Rolls, white (4)","1008 Rolls, 100% whole wheat (4) (recipe required)","1009 Rolls, sweet yeast (4)","1010 Rolls, any other variety (4)","1011 Coffee cake, yeast","1012 Doughnuts, raised","1013 Foreign bread, yeast (recipe required)","1014 Yeast bread, any other not listed"],
+  "1050 Quick Breads": ["1051 Banana bread loaf","1052 Biscotti (4)","1053 Crackers (6)","1054 Cornbread or corn muffins (4)","1055 Corn tortillas (4)","1056 Coffee cake, tea breads, no yeast (1)","1057 Doughnuts, no yeast (6)","1058 Flour tortillas (4)","1059 Foreign bread, no yeast (recipe required)","1060 Gluten Free Quick Bread, any type","1061 Grain bread (wheat, oats, rye, etc; no yeast)","1062 Muffins (4; no paper cups)","1063 Zucchini bread loaf","1064 Quick bread, any other not listed"],
+  "1100 Cookies": ["1101 Bars (6)","1102 Brownies (6)","1103 Drop (6)","1104 Gluten Free (6)","1105 Pressed (6)","1106 Molded or rolled (6)","1107 No bake (6)","1108 Any other variety (6)"],
+  "1200 Cakes": ["1201 Cake, white","1202 Cake, yellow","1203 Cake, chocolate","1204 Cake, carrot","1205 Cake, spice","1206 Cake, chiffon","1207 Cake, angel food","1208 Cake, sponge","1209 Cake, fruit","1210 Cake, pound","1211 Cake, Gluten Free","1212 Cake, any other variety","1213 Foreign baked goods (recipe required)"],
+  "1250 Decorated Baked Goods": ["1251 Decorated cakes","1252 Decorated cupcakes (6)","1253 Decorated cookies (6)"],
+  "1300 Candies": ["1301 Brittle","1302 Butterscotch and toffee","1303 Caramels","1304 Dipped chocolates","1305 Divinity/nougat","1306 Fudge, dark","1307 Fudge, white","1308 Fudge, any other","1309 Hard candy","1310 Jellied candy","1311 Mints","1312 No cook","1313 Penuche","1314 Taffy","1315 Candy, any other variety"],
+  "1400 Pies & Other Baked Goods": ["1401 Single crust","1402 Double crust","1403 Crumb crust","1404 Pie, any other variety"],
+  "1500 Good For Your Health": ["1501 Cake","1502 Cookies (6)","1503 Gluten Free (modified for health)","1504 Muffins (6)","1505 Quick breads","1506 Any other variety"],
+  "1600 Clothing": ["1601 Athletic apparel","1602 Apron","1603 Coat","1604 Costume","1605 Decorative clothing","1606 Doll clothing","1607 Dress","1608 Jacket","1609 Shirt or blouse","1610 Skirt","1611 Shorts or pants","1612 Sports outfit","1613 Suit","1614 Vest","1615 Youth clothing","1616 Garments, any other"],
+  "1700 Crochet": ["1701 Afghan, large","1702 Afghan, small","1703 Accessories","1704 Bedspreads","1705 Doilies (must be mounted on stock board)","1706 Doll clothing","1707 Adult garment","1708 Child garment","1709 Baby garment","1710 Hat","1711 Mittens","1712 Socks","1713 Scarves","1714 Tablecloths","1715 Tatting","1716 Any other crochet item"],
+  "1800 Knitting": ["1801 Afghan, large","1802 Afghan, small","1803 Accessories","1804 Bedspreads","1805 Doll clothing","1806 Adult garment","1807 Child garment","1808 Baby garment","1809 Hat","1810 Mittens","1811 Socks","1812 Scarves"],
+  "1900 Quilts": ["1901 Pillows","1902 Wall hangings","1903 Table runners","1904 Baby quilt","1905 Throw quilts","1906 Twin size quilt","1907 Full size quilt","1908 Queen size quilt","1909 King size quilt","1910 Any other quilt not listed"],
+  "Quilting Methods": ["A. Hand-pieced, hand quilted","B. Hand-pieced, machine quilted","C. Hand-pieced, quilted by other","D. Hand-pieced, tied","E. Machine-pieced, hand quilted","F. Machine-pieced, machine quilted","G. Machine-pieced, quilted by other","H. Hand-pieced, tied","I. Appliqu\u00e8d, hand quilted","J. Appliqu\u00e8d, machine quilted","K. Appliqu\u00e8d, quilted by other","L. Appliqu\u00e8d, tied"],
+  "2000 Needlework": ["2001 Embroidery","2002 Crewel","2003 Counted cross stitch","2004 Needlepoint","2005 Other needlework project"],
+  "2100 Fiber Arts": ["2101 Accessories","2102 Decorated clothing","2103 Dolls, fabric, constructed by sewing","2104 Felting","2105 Latch Hook","2106 Machine appliqu\u00e9","2107 Pillows","2108 Pillow slips","2109 Toy or soft sculpture","2110 Dyed","2111 Wall hangings (must be ready to hang)","2112 Weavings","2113 Wreaths","2114 Any other fiber art project"],
+  "2200 Hobbies & Crafts": ["2201 Beadwork","2202 Candles","2203 Commercial art kits","2204 Creams, lotions, soaps (no refrigeration)","2205 Decoupage","2206 Dolls, bodies constructed of wood, porcelain, etc.","2207 Educational displays","2208 Erector building sets","2209 Jewelry","2210 Leathercraft, tooled/stamped","2211 Leathercraft, braided","2212 Leathercraft, any other","2213 Lego building sets","2214 Macram\u00e9","2215 Metalwork","2216 Mobile","2217 Mosaic","2218 Plastic canvas","2219 Pottery, painted","2220 Pottery, any other","2221 Scrapbooking","2222 Silk painting","2223 Stained glass","2224 String or wire art","2225 Tied Flies: Collection or Display","2226 Tole paint","2227 Wall hangings (must be ready to hang)","2228 Wood burning","2229 Wood carving","2230 Woodworking","2231 Any other hobby or craft"],
+  "2300 Recycled Art": ["2301 Cardboard","2302 Collage","2303 Fabric","2304 Glass","2305 Metal","2306 Paper, plastic bags","2307 Recycled jewelry","2308 Rope","2309 Tin Cans","2310 Western","2311 Wood","2312 Wire","2313 Yarn","2314 Recycled Cowboy Boots","2315 Any other medium"],
+  "2400 Holiday Section": ["2401 Arts & crafts","2402 Decorated clothing","2403 Dolls","2404 Needlework","2405 Ornaments","2406 Quilts","2407 Wreaths","2408 Any other holiday project not listed"],
+  "2500 Photography": ["2502 Abstract","2503 Animals","2504 Architecture","2505 Birds","2506 Bugs","2507 Children","2508 Floral","2509 Landscapes/nature/scenery","2510 Pets/domestic Animals","2511 People","2512 Portraits (head and shoulders only)","2513 Series (A set of 3 related photos that tell a story)","2514 Sports & action","2515 Still life","2516 Sunsets or sunrises","2517 \"This is Eagle County\" (Photo must have been taken in Eagle County)","2518 Trees or foliage","2519 Waterscapes","2520 Other categories not listed in 2501-2519"],
+  "2600 Art": ["2601 Acrylics","2602 Airbrush","2603 Charcoal","2604 Chalk","2605 Computer Generated Art","2606 Marker","2607 Mixed media or Collage","2608 Oil","2609 Pencil (black)","2610 Pencil (colored)","2611 Pen and Ink","2612 Pottery, hand built","2613 Pottery, wheel thrown","2614 Sculpture, any kind","2615 Watercolor","2616 Any other art project not listed"],
+  "2800 Children's Arts & Crafts": ["(See department supervisor for available classes)"]
+};
+
+let selectedAge = '';
+let entries = [];
+
+function setAge(btn, val) {
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedAge = val;
+}
+
+function buildDivisionSelect(sel, selected) {
+  sel.innerHTML = '<option value="">— choose division —</option>';
+  Object.keys(DIVISIONS).forEach(div => {
+    const o = document.createElement('option');
+    o.value = div; o.textContent = div;
+    if (div === selected) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function buildClassSelect(sel, division, selected) {
+  sel.innerHTML = '<option value="">— choose class —</option>';
+  if (division && DIVISIONS[division]) {
+    DIVISIONS[division].forEach(cls => {
+      const o = document.createElement('option');
+      o.value = cls; o.textContent = cls;
+      if (cls === selected) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+}
+
+function addEntry() {
+  const id = Date.now() + Math.random();
+  entries.push({ id, div: '', cls: '', desc: '' });
+  renderEntries();
+}
+
+function removeEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  renderEntries();
+}
+
+function renderEntries() {
+  const list = document.getElementById('entryList');
+  list.innerHTML = '';
+  entries.forEach((entry, idx) => {
+    const row = document.createElement('div');
+    row.className = 'entry-row';
+
+    const num = document.createElement('div');
+    num.className = 'entry-num';
+    num.textContent = idx + 1;
+
+    const divWrap = document.createElement('div');
+    const divSel = document.createElement('select');
+    buildDivisionSelect(divSel, entry.div);
+    divSel.onchange = () => { entry.div = divSel.value; entry.cls = ''; renderEntries(); };
+    divWrap.appendChild(divSel);
+
+    const clsWrap = document.createElement('div');
+    clsWrap.className = 'entry-class-wrap';
+    const clsSel = document.createElement('select');
+    buildClassSelect(clsSel, entry.div, entry.cls);
+    clsSel.onchange = () => { entry.cls = clsSel.value; };
+    clsWrap.appendChild(clsSel);
+
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.className = 'desc-input';
+    descInput.placeholder = 'Description / notes (optional)';
+    descInput.value = entry.desc || '';
+    descInput.oninput = () => { entry.desc = descInput.value; };
+    clsWrap.appendChild(descInput);
+
+    const removeWrap = document.createElement('div');
+    removeWrap.style.textAlign = 'center';
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.type = 'button';
+    removeBtn.title = 'Remove entry';
+    removeBtn.textContent = '×';
+    removeBtn.onclick = () => removeEntry(entry.id);
+    removeWrap.appendChild(removeBtn);
+
+    row.appendChild(num);
+    row.appendChild(divWrap);
+    row.appendChild(clsWrap);
+    row.appendChild(removeWrap);
+    list.appendChild(row);
+  });
+
+  const countEl = document.getElementById('entryCount');
+  countEl.textContent = entries.length > 0 ? '(' + entries.length + ' item' + (entries.length > 1 ? 's' : '') + ')' : '';
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type || '';
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 4000);
+}
+
+function validateForm() {
+  if (!document.getElementById('lastName').value.trim()) { showToast('Please enter your last name.', 'error'); return false; }
+  if (!document.getElementById('firstName').value.trim()) { showToast('Please enter your first name.', 'error'); return false; }
+  if (!selectedAge) { showToast('Please select an age group.', 'error'); return false; }
+  if (!document.getElementById('address').value.trim()) { showToast('Please enter your mailing address.', 'error'); return false; }
+  if (entries.length === 0) { showToast('Please add at least one entry item.', 'error'); return false; }
+  return true;
+}
+
+function submitForm() {
+  if (!SCRIPT_URL) {
+    showToast('Setup required: paste your Google Apps Script URL into the HTML file.', 'error');
+    return;
+  }
+  if (!validateForm()) return;
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting\u2026';
+
+  var payload = {
+    lastName: document.getElementById('lastName').value.trim(),
+    firstName: document.getElementById('firstName').value.trim(),
+    ageGroup: selectedAge,
+    address: document.getElementById('address').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    greenAcre: document.getElementById('greenAcre').value,
+    exhibitorNum: document.getElementById('exhibitorNum').value.trim(),
+    entries: entries.map(function(e) { return { div: e.div, cls: e.cls, desc: e.desc }; })
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function() {
+    showToast('\u2713 Submitted! Your entries have been recorded.', 'success');
+    btn.disabled = false;
+    btn.textContent = '\u2713 Submit to spreadsheet';
+    // Offer to print after successful submit
+    setTimeout(function() {
+      if (confirm('Submitted successfully!\n\nWould you also like to print a copy for your records?')) {
+        generateDoc();
+      }
+    }, 500);
+  })
+  .catch(function(err) {
+    showToast('Submission failed. Please try again or contact the fair office.', 'error');
+    btn.disabled = false;
+    btn.textContent = '\u2713 Submit to spreadsheet';
+  });
+}
+
+function clearForm() {
+  if (!confirm('Clear all form data?')) return;
+  document.getElementById('lastName').value = '';
+  document.getElementById('firstName').value = '';
+  document.getElementById('address').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('email').value = '';
+  document.getElementById('greenAcre').value = '';
+  document.getElementById('exhibitorNum').value = '';
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
+  selectedAge = '';
+  entries = [];
+  renderEntries();
+}
+
+function generateDoc() {
+  const lastName = document.getElementById('lastName').value || '___________';
+  const firstName = document.getElementById('firstName').value || '___________';
+  const address = document.getElementById('address').value || '___________';
+  const phone = document.getElementById('phone').value || '___________';
+  const email = document.getElementById('email').value || '___________';
+  const greenAcre = document.getElementById('greenAcre').value || '___________';
+  const exhibitorNum = document.getElementById('exhibitorNum').value || '___________';
+  const age = selectedAge || '___________';
+
+  let rows = '';
+  entries.forEach((e, i) => {
+    rows += '<tr>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;text-align:center;color:#555;">' + (i+1) + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;">' + (e.div || '') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;">' + (e.cls || '') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;text-align:center;">' + exhibitorNum + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;">' + (e.desc || '') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #ccc;"></td>' +
+    '</tr>';
+  });
+  if (entries.length === 0) {
+    rows = '<tr><td colspan="6" style="padding:12px;text-align:center;color:#999;border:1px solid #ccc;">No entries added</td></tr>';
+  }
+
+  const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Eagle County Fair \u2014 Open Class Entry Form</title>' +
+    '<style>body{font-family:Georgia,serif;margin:0;}@media print{@page{margin:0.75in;}}</style></head><body>' +
+    '<div style="max-width:900px;margin:0 auto;padding:2rem;">' +
+    '<div style="text-align:center;margin-bottom:1.5rem;border-bottom:2px solid #3B6D11;padding-bottom:1rem;">' +
+    '<h2 style="margin:0;font-size:22px;color:#1a1a1a;">Eagle County Fair</h2>' +
+    '<h3 style="margin:4px 0 0;font-size:16px;font-weight:normal;color:#444;">Open Class Entry Form</h3></div>' +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:14px;">' +
+    '<tr><td style="padding:6px 0;width:50%;"><strong>Last name:</strong> ' + lastName + '</td>' +
+    '<td style="padding:6px 0;"><strong>First name:</strong> ' + firstName + '</td></tr>' +
+    '<tr><td style="padding:6px 0;"><strong>Age group:</strong> ' + age + '</td>' +
+    '<td style="padding:6px 0;"><strong>Exhibitor #:</strong> ' + exhibitorNum + '</td></tr>' +
+    '<tr><td colspan="2" style="padding:6px 0;"><strong>Mailing address:</strong> ' + address + '</td></tr>' +
+    '<tr><td style="padding:6px 0;"><strong>Phone:</strong> ' + phone + '</td>' +
+    '<td style="padding:6px 0;"><strong>Email:</strong> ' + email + '</td></tr>' +
+    '<tr><td colspan="2" style="padding:6px 0;"><strong>Green Acre member:</strong> ' + greenAcre + '</td></tr></table>' +
+    '<hr style="border:none;border-top:1.5px solid #333;margin:1rem 0;" />' +
+    '<h4 style="margin:0 0 10px;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-family:Arial,sans-serif;">Entry items</h4>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    '<thead><tr style="background:#f0f0ea;">' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:center;width:36px;">#</th>' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:left;">Division</th>' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:left;">Class / Lot</th>' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:center;">Exhibitor #</th>' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:left;">Description</th>' +
+    '<th style="padding:8px 10px;border:1px solid #ccc;text-align:center;">Premium Award</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p style="font-size:12px;color:#666;margin-top:2rem;">Signature: _________________________________ &nbsp;&nbsp;&nbsp; Date: _________________</p>' +
+    '</div><script>window.onload=function(){window.print();}<\/script></body></html>';
+
+  const printWin = window.open('', '_blank', 'width=960,height=720');
+  if (printWin) {
+    printWin.document.write(html);
+    printWin.document.close();
+  } else {
+    alert('Pop-up blocked. Please allow pop-ups for this page and try again.');
+  }
+}
+
+addEntry();
+</script>
+</body>
+</html>
